@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
  // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    
     const database = client.db("task-manger-data").collection("task");
     const userdatabase = client.db("task-manger-data").collection("taskUser");
 
@@ -45,12 +45,42 @@ async function run() {
         res.send(result);
       });
 
+      //updated Add contest
+app.put("/allcontest/:id", async (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+    console.log("id", id, data);
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updatedata = {
+      $set: {
+        title: data.title,
+        img: data.image,
+        priority: data.priority,
+        due_date: data.startDate,
+        status:data.status,
+        description: data.description,
+     
+
+      },
+    };
+    const result = await database.updateOne(filter, updatedata, options);
+    res.send(result);
+  });
         //get user
 
         app.get('/users',  async (req, res) => {
             const result = await userdatabase.find().toArray();
             res.send(result);
           });
+
+          
+          app.delete('/users/:_id',  async (req, res) => {
+            const id = req.params._id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userdatabase.deleteOne(query);
+            res.send(result);
+          })
       
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
